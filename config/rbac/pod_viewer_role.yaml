@@ -1,0 +1,27 @@
+# permissions for end users to view pods.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: clusterrole
+    app.kubernetes.io/instance: pod-viewer-role
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: cm-injector-operator
+    app.kubernetes.io/part-of: cm-injector-operator
+    app.kubernetes.io/managed-by: kustomize
+  name: pod-viewer-role
+rules:
+- apiGroups:
+  - core.spices.dev
+  resources:
+  - pods
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - core.spices.dev
+  resources:
+  - pods/status
+  verbs:
+  - get
