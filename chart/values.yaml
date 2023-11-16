@@ -1,0 +1,24 @@
+# my-simple-chart/values.yaml
+
+global:
+  labels: {}
+
+namespace:
+  create: true
+  name: ""
+  labels: {}
+
+replicaCount: 1
+image:
+  repository: 405934267152.dkr.ecr.ca-central-1.amazonaws.com/cm-injector
+  tag: latest
+  pullPolicy: IfNotPresent
+
+nameOverride: ""
+fullnameOverride: ""
+
+resources: {}
+
+serviceAccount:
+  create: false
+  name: ""

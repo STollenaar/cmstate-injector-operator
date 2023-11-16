@@ -2,15 +2,15 @@
 # since it depends on service name and namespace that are out of this kustomize package.
 # It should be run by config/default
 resources:
-  - bases/cache.spices.dev_cmstates.yaml
-  - bases/core.spices.dev_pods.yaml
+- bases/cache.spices.dev_cmstates.yaml
+# - bases/core.spices.dev_pods.yaml
 #+kubebuilder:scaffold:crdkustomizeresource
 
-patchesStrategicMerge:
-  # [WEBHOOK] To enable webhook, uncomment all the sections with [WEBHOOK] prefix.
-  # patches here are for enabling the conversion webhook for each CRD
-  #- patches/webhook_in_cmstates.yaml
-  - patches/webhook_in_pods.yaml
+patchesStrategicMerge: []
+# [WEBHOOK] To enable webhook, uncomment all the sections with [WEBHOOK] prefix.
+# patches here are for enabling the conversion webhook for each CRD
+#- patches/webhook_in_cmstates.yaml
+#- patches/webhook_in_pods.yaml
 #+kubebuilder:scaffold:crdkustomizewebhookpatch
 
 # [CERTMANAGER] To enable cert-manager, uncomment all the sections with [CERTMANAGER] prefix.
@@ -21,4 +21,4 @@ patchesStrategicMerge:
 
 # the following config is for teaching kustomize how to do kustomization for CRDs.
 configurations:
-  - kustomizeconfig.yaml
+- kustomizeconfig.yaml

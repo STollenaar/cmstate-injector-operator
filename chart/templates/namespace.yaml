@@ -1,0 +1,14 @@
+# my-conditional-namespace-chart/templates/namespace.yaml
+{{- if .Values.namespace.create }}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ include "chart.namespaceName" . }}
+  labels:
+    {{- if .Values.global.labels }}
+    {{- toYaml .Values.global.labels . | nindent 4 }}
+    {{- end }}
+    {{- if .Values.global.labels }}
+    {{- toYaml .Values.namespace.labels . | nindent 4 }}
+    {{- end }}
+{{- end }}
