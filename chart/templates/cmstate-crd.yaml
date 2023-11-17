@@ -5,8 +5,8 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.11.1
   labels:
-    {{- if .Values.global.labels }}
-    {{- toYaml .Values.global.labels . | nindent 4 }}
+    {{- if or .Values.global.labels }}
+    {{ toYaml .Values.global.labels | nindent 4 }}
     {{- end }}
 spec:
   group: cache.spices.dev

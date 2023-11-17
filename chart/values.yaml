@@ -1,7 +1,8 @@
 # my-simple-chart/values.yaml
 
 global:
-  labels: {}
+  labels:
+    app: cmstate-operator
 
 deployment:
   labels: {}
