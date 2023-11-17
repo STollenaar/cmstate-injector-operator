@@ -1,4 +1,3 @@
-# my-conditional-namespace-chart/templates/namespace.yaml
 {{- if .Values.namespace.create }}
 apiVersion: v1
 kind: Namespace

@@ -1,0 +1,19 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ .Values.rbac.role.name }}
+rules:
+{{ toYaml .Values.rbac.role.rules | nindent 2 }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ .Values.rbac.role.name }}-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ .Values.rbac.role.name }}
+subjects:
+- kind: ServiceAccount
+  name:  {{ include "chart.serviceAccountName" . }}
+  namespace:  {{ include "chart.namespaceName" . }}

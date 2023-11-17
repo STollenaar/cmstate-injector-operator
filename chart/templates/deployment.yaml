@@ -1,8 +1,8 @@
-# chart/templates/deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "chart.fullname" . }}
+  namespace:  {{ include "chart.namespaceName" .}}
   labels:
     app: {{ include "chart.name" . }}
 spec:
@@ -15,6 +15,7 @@ spec:
       labels:
         app: {{ include "chart.name" . }}
     spec:
+      serviceAccountName: {{ include "chart.serviceAccountName" . }}
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
