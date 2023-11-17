@@ -4,22 +4,26 @@ metadata:
   name: cmstate-operator-webhook
 webhooks:
   - name: cmstate-operator-webhook.spices.dev
-    namespaceSelector:
-      matchExpressions:
-        - key: runlevel
-          operator: NotIn
-          values: ["0","1"]
     admissionReviewVersions: ["v1"]
     sideEffects: None
+    matchConditions:
+    - name: 'exclude-own'
+      expression: 'object.metadata.name != {{ .Release.Namespace }}'
+    - name: 'exclude-kube-system'
+      expression: 'object.metadata.name != kube-system'
     clientConfig:
       service:
         name: {{ .Values.service.name }}
         namespace:  {{ .Release.Namespace }}
         path: "/"
     #   caBundle: {{ .Files.Get "templates/webhook-ca-bundle.txt" | b64enc | quote }}
+    objectSelector:
+      matchLabels:
+        foo: bar
     rules:
     - operations: [ "CREATE", "DELETE" ]
       apiGroups: [""]
       apiVersions: ["v1"]
       resources: ["pods"]
       scope: "Namespaced"
+
