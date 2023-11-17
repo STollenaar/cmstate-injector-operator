@@ -54,13 +54,13 @@ func handleMutate(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
 	defer r.Body.Close()
 	if err != nil {
-		log.Println(err)
+		fmt.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "%s", err)
 	}
 	var review v1beta1.AdmissionReview
 	if _, _, err := deserializer.Decode([]byte(body), nil, &review); err != nil {
-		log.Println(err)
+		fmt.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "%s", err)
 	}
@@ -71,13 +71,13 @@ func handleMutate(w http.ResponseWriter, r *http.Request) {
 	if ar != nil {
 		// get the Pod object and unmarshal it into its struct, if we cannot, we might as well stop here
 		if err := json.Unmarshal(ar.Object.Raw, &pod); err != nil {
-			log.Println(err)
+			fmt.Println(err)
 			w.WriteHeader(http.StatusInternalServerError)
 			fmt.Fprintf(w, "%s", err)
 			return
 		}
 	}
-
+	fmt.Printf("Ready to handle %s event for %v\n", ar.Operation, *pod)
 	if ar.Operation == v1beta1.Create {
 		review.Response = handlePodCreate(pod)
 	} else if ar.Operation == v1beta1.Delete {
