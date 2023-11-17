@@ -9,6 +9,6 @@ entries:
     name: cmstate-operator
     type: application
     urls:
-    - https://github.com/STollenaar/cm-injector-operator/releases/download/cmstate-operator-0.1.0/cmstate-operator-0.1.0.tgz/cmstate-operator-0.1.0.tgz
+    - https://github.com/STollenaar/cm-injector-operator/releases/download/cmstate-operator-0.1.0/cmstate-operator-0.1.0.tgz
     version: 0.1.0
 generated: "2023-11-17T13:52:23.683406652-03:30"
