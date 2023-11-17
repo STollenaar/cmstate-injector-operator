@@ -8,9 +8,9 @@ webhooks:
     sideEffects: None
     matchConditions:
     - name: 'exclude-own'
-      expression: 'object.metadata.name != {{ .Release.Namespace }}'
+      expression: 'object.metadata.name != "{{ .Release.Namespace }}"'
     - name: 'exclude-kube-system'
-      expression: 'object.metadata.name != kube-system'
+      expression: 'object.metadata.name != "kube-system"'
     clientConfig:
       service:
         name: {{ .Values.service.name }}
