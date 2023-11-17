@@ -4,16 +4,25 @@ metadata:
   name: {{ include "chart.fullname" . }}
   namespace:  {{ include "chart.namespaceName" .}}
   labels:
-    app: {{ include "chart.name" . }}
+    {{- if or .Values.global.labels .Values.deployment.labels }}
+    {{ toYaml .Values.global.labels . | nindent 4 }}
+    {{ toYaml .Values.deployment.labels . | nindent 4 }}
+    {{- end }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{ include "chart.name" . }}
+        {{- if or .Values.global.labels .Values.deployment.pod.labels }}
+        {{ toYaml .Values.global.labels . | nindent 4 }}
+        {{ toYaml .Values.deployment.pod.labels . | nindent 4 }}
+        {{- end }}
   template:
     metadata:
       labels:
-        app: {{ include "chart.name" . }}
+        {{- if or .Values.global.labels .Values.deployment.pod.labels }}
+        {{ toYaml .Values.global.labels . | nindent 4 }}
+        {{ toYaml .Values.deployment.pod.labels . | nindent 4 }}
+        {{- end }}
     spec:
       serviceAccountName: {{ include "chart.serviceAccountName" . }}
       containers:

@@ -3,6 +3,17 @@
 global:
   labels: {}
 
+deployment:
+  labels: {}
+  annotations: {}
+  pod:
+    labels: {}
+    annotations: {}
+
+service:
+  labels: {}
+  annotations: {}
+
 namespace:
   create: true
   name: "cmstate-operator"
