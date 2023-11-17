@@ -17,9 +17,6 @@ webhooks:
         namespace:  {{ .Release.Namespace }}
         path: "/"
     #   caBundle: {{ .Files.Get "templates/webhook-ca-bundle.txt" | b64enc | quote }}
-    objectSelector:
-      matchLabels:
-        foo: bar
     rules:
     - operations: [ "CREATE", "DELETE" ]
       apiGroups: [""]
