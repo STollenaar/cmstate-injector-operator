@@ -1,5 +1,3 @@
-# my-simple-chart/values.yaml
-
 global:
   labels:
     app: cmstate-operator
@@ -14,11 +12,6 @@ deployment:
 service:
   labels: {}
   annotations: {}
-
-namespace:
-  create: true
-  name: "cmstate-operator"
-  labels: {}
 
 replicaCount: 1
 image:
