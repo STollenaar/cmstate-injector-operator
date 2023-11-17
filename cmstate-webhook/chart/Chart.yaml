@@ -7,5 +7,5 @@ appVersion: "0.1.0"
 dependencies:
 - name: cmstate-operator
   version: "0.1.0"
-  repository: "https://stollenaar.github.io/cm-injector-operator"
+  repository: "https://stollenaar.github.io/cmstate-injector-operator"
   condition: cmstate-operator.enabled
