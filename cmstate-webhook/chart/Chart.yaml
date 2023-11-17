@@ -1,0 +1,5 @@
+# cmstate-operator-webhook/Chart.yaml
+apiVersion: v2
+name: cmstate-operator-webhook
+description: Helm chart for cmstate-operator-webhook
+version: 0.1.0

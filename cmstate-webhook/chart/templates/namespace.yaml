@@ -1,0 +1,11 @@
+{{- if .Values.namespace.create }}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name:  {{ include "chart.namespaceName" .}}
+  labels:
+    {{- if or .Values.global.labels .Values.namespace.labels }}
+    {{ toYaml .Values.global.labels . | nindent 4 }}
+    {{ toYaml .Values.namespace.labels . | nindent 4 }}
+    {{- end }}
+{{- end }}

@@ -1,0 +1,28 @@
+serviceAccount:
+  create: true
+  name: cmstate-operator-webhook-sa
+
+deployment:
+  labels: {}
+  annotations: {}
+  pod:
+    labels: {}
+    annotations: {}
+
+service:
+  name: "cmstate-operator-service"
+  labels: {}
+  annotations: {}
+
+namespace:
+  create: true
+  name: cmstate-operator-webhook
+
+rbac:
+  create: true
+  role:
+    name: cmstate-operator-role
+    rules:
+      - apiGroups: [""]
+        resources: ["pods"]
+        verbs: ["get", "list", "watch"]

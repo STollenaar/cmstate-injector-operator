@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "chart.fullname" . }}
+  namespace:  {{ include "chart.namespaceName" .}}
+  labels:
+        {{- if or .Values.global.labels .Values.deployment.labels }}
+        {{ toYaml .Values.global.labels . | nindent 4 }}
+        {{ toYaml .Values.deployment.labels . | nindent 4 }}
+        {{- end }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  replicas: 1
+  selector:
+    matchLabels:
+        {{- if or .Values.global.labels .Values.deployment.pod.labels }}
+        {{ toYaml .Values.global.labels . | nindent 4 }}
+        {{ toYaml .Values.deployment.pod.labels . | nindent 4 }}
+        {{- end }}
+  template:
+    metadata:
+      labels:
+        {{- if or .Values.global.labels .Values.deployment.pod.labels }}
+        {{ toYaml .Values.global.labels . | nindent 4 }}
+        {{ toYaml .Values.deployment.pod.labels . | nindent 4 }}
+        {{- end }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 8443
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+                drop:
+                - ALL
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
