@@ -1,6 +1,6 @@
 dependencies:
 - name: cmstate-operator
-  repository: https://stollenaar.github.io/cm-injector-operator
+  repository: https://stollenaar.github.io/cmstate-injector-operator
   version: 0.1.0
-digest: sha256:04cfd697a7856bb1b5760c27457e9e81db4d26d565283fea4fd8bf946eefc8bd
-generated: "2023-11-17T13:55:47.54691921-03:30"
+digest: sha256:e14118da8acc09c78be67437c1422b3ef85dbb9c885cec84e46faa9f15ecf31a
+generated: "2023-11-17T15:11:00.014320599-03:30"
