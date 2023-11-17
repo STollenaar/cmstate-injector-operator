@@ -1,6 +1,16 @@
+global:
+  labels:
+    app: cmstate-webhook
+  annotations: {}
+
 serviceAccount:
   create: true
   name: cmstate-operator-webhook-sa
+
+image:
+  repository: public.ecr.aws/x4a1o1q2/cmstate-operator-webhook
+  tag: latest
+  pullPolicy: IfNotPresent
 
 deployment:
   labels: {}

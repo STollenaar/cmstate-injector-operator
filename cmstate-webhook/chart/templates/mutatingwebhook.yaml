@@ -3,7 +3,14 @@ kind: MutatingWebhookConfiguration
 metadata:
   name: cmstate-operator-webhook
 webhooks:
-  - name: cmstate-operator-webhook
+  - name: cmstate-operator-webhook.spices.dev
+    namespaceSelector:
+      matchExpressions:
+        - key: runlevel
+          operator: NotIn
+          values: ["0","1"]
+    admissionReviewVersions: ["v1"]
+    sideEffects: None
     clientConfig:
       service:
         name: {{ .Values.service.name }}
@@ -15,3 +22,4 @@ webhooks:
       apiGroups: [""]
       apiVersions: ["v1"]
       resources: ["pods"]
+      scope: "Namespaced"
