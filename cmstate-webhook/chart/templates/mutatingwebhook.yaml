@@ -14,7 +14,7 @@ webhooks:
     clientConfig:
       service:
         name: {{ .Values.service.name }}
-        namespace:  {{ include "chart.namespaceName" .}}
+        namespace:  {{ .Release.Namespace }}
         path: "/"
     #   caBundle: {{ .Files.Get "templates/webhook-ca-bundle.txt" | b64enc | quote }}
     rules:

@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ .Values.service.name }}
-  namespace:  {{ include "chart.namespaceName" .}}
+  namespace:  {{ .Release.Namespace }}
   labels:
     {{- if or .Values.global.labels }}
     {{ toYaml .Values.global.labels | nindent 4 }}

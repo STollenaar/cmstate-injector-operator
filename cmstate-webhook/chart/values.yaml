@@ -24,10 +24,6 @@ service:
   labels: {}
   annotations: {}
 
-namespace:
-  create: true
-  name: cmstate-operator-webhook
-
 rbac:
   create: true
   role:
@@ -36,3 +32,53 @@ rbac:
       - apiGroups: [""]
         resources: ["pods"]
         verbs: ["get", "list", "watch"]
+
+cmstate-operator:
+  enabled:  false
+  global:
+    labels:
+      app: cmstate-operator
+
+  deployment:
+    labels: {}
+    annotations: {}
+    pod:
+      labels: {}
+      annotations: {}
+
+  service:
+    labels: {}
+    annotations: {}
+
+  replicaCount: 1
+  image:
+    repository: public.ecr.aws/x4a1o1q2/cmstate-operator
+    tag: latest
+    pullPolicy: IfNotPresent
+
+  nameOverride: ""
+  fullnameOverride: ""
+
+  resources: {}
+
+  serviceAccount:
+    create: true
+    name: "cmstate-operator"
+
+  rbac:
+    create: true
+    role:
+      name: cmstate-operator
+      rules:
+        - apiGroups: [""]
+          resources: ["configmaps"]
+          verbs: ["create", "delete", "update", "get", "list", "watch"]
+        - apiGroups: ["cache.spices.dev"]
+          resources: ["cmstates"]
+          verbs: ["create", "delete", "update", "get", "list", "watch"]
+        - apiGroups: ["cache.spices.dev"]
+          resources: ["cmstates/finalizers"]
+          verbs: ["update"]
+        - apiGroups: ["cache.spices.dev"]
+          resources: ["cmstates/status"]
+          verbs: ["get", "patch", "update"]

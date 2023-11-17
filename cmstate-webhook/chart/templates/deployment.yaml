@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "chart.fullname" . }}
-  namespace:  {{ include "chart.namespaceName" .}}
+  namespace:  {{ .Release.Namespace }}
   labels:
     {{- if or .Values.global.labels }}
     {{ toYaml .Values.global.labels | nindent 4 }}

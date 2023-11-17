@@ -6,6 +6,7 @@ version: 0.1.0
 appVersion: "0.1.0"
 
 dependencies:
-- name: cmstate-opeprator
+- name: cmstate-operator
   version: "0.1.0"
-  repository: "https://github.com/STollenaar/cm-injector-operator/chart"
+  repository: "https://stollenaar.github.io/cm-injector-operator"
+  condition: cmstate-operator.enabled
