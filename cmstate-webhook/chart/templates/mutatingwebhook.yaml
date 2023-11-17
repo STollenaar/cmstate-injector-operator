@@ -6,11 +6,12 @@ webhooks:
   - name: cmstate-operator-webhook.spices.dev
     admissionReviewVersions: ["v1"]
     sideEffects: None
-    matchConditions:
-    - name: 'exclude-own'
-      expression: 'object.metadata.name != "{{ .Release.Namespace }}"'
-    - name: 'exclude-kube-system'
-      expression: 'object.metadata.name != "kube-system"'
+    namespaceSelector:
+        matchExpressions:
+            - key: 'cmstate.spices.dev'
+              operator: 'NotIn'
+              values:
+              - 'opt-out'
     clientConfig:
       service:
         name: {{ .Values.service.name }}
