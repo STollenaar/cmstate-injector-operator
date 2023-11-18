@@ -117,6 +117,10 @@ func handleMutate(w http.ResponseWriter, r *http.Request) {
 		if err != nil && !apierrors.IsNotFound(err) {
 			err = fmt.Errorf("fetching cmstate has resulted in an error: %v, with response %s", err, string(cmStateData))
 			panic(err)
+		} else if !apierrors.IsNotFound(err) {
+			if err := json.Unmarshal(cmStateData, cmState); err != nil {
+				panic(err)
+			}
 		}
 	} else {
 		handleResponse(review, w, r)
@@ -191,7 +195,7 @@ func handlePodDelete(cmState *cachev1alpha1.CMState, cmStateData []byte, pod *v1
 	cmState.Spec.Audience = append(cmState.Spec.Audience[:index], cmState.Spec.Audience[index+1:]...)
 
 	body, _ := json.Marshal(cmState)
-	cmStateData, err = clientSet.RESTClient().Patch(types.JSONPatchType).
+	cmStateData, err = clientSet.RESTClient().Patch(types.MergePatchType).
 		AbsPath(
 			fmt.Sprintf("/apis/cache.spices.dev/v1alpha1/namespaces/%s/%s",
 				pod.Namespace,
@@ -199,8 +203,8 @@ func handlePodDelete(cmState *cachev1alpha1.CMState, cmStateData []byte, pod *v1
 			),
 		).
 		Body(body).
+		Name(cmState.Name).
 		DoRaw(context.TODO())
-
 	if err != nil {
 		err = fmt.Errorf("patching cmstate has resulted in an error: %v, with response %s", err, string(cmStateData))
 		panic(err)
@@ -240,14 +244,13 @@ func handlePodCreate(cmState *cachev1alpha1.CMState, cmStateData []byte, pod *v1
 
 	patch := []PatchOperation{
 		{
-			Op:   "add",
-			Path: "/metadata/annotations",
-			Value: map[string]string{
-				"vault.hashicorp.com/agent-configmap": cmState.Name,
-			},
+			Op:    "add",
+			Path:  "/metadata/annotations/vault.hashicorp.com~1agent-configmap",
+			Value: cmState.Name,
 		},
 	}
 	pData, _ := json.Marshal(patch)
+	fmt.Println(string(pData))
 	response.Patch = pData
 	pt := v1beta1.PatchTypeJSONPatch
 	response.PatchType = &pt
