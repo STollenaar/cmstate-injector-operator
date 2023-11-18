@@ -3,14 +3,14 @@ kind: MutatingWebhookConfiguration
 metadata:
   name: cmstate-operator-webhook
   labels: 
-    {{- if or .Values.global.labels }}
+    {{- if .Values.global.labels }}
     {{ toYaml .Values.global.labels | nindent 4 }}
     {{- end }}
     {{- if .Values.webhook.labels }}
     {{ toYaml .Values.webhook.labels | nindent 4 }}
     {{- end }}
   annotations:
-    {{- if or .Values.global.annotations }}
+    {{- if .Values.global.annotations }}
     {{ toYaml .Values.global.annotations | nindent 4 }}
     {{- end }}
     {{- if .Values.webhook.annotations }}

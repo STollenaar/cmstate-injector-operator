@@ -4,7 +4,7 @@ metadata:
   name: {{ include "chart.fullname" . }}
   namespace:  {{ .Release.Namespace }}
   labels:
-    {{- if or .Values.global.labels }}
+    {{- if .Values.global.labels }}
     {{ toYaml .Values.global.labels | nindent 4 }}
     {{- end }}
     {{- if .Values.deployment.labels }}
@@ -15,7 +15,7 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-        {{- if or .Values.global.labels }}
+        {{- if .Values.global.labels }}
         {{ toYaml .Values.global.labels | nindent 8 }}
         {{- end }}
         {{- if .Values.deployment.labels }}
@@ -24,13 +24,14 @@ spec:
   template:
     metadata:
       labels:
-        {{- if or .Values.global.labels }}
+        {{- if .Values.global.labels }}
         {{ toYaml .Values.global.labels | nindent 8 }}
         {{- end }}
         {{- if .Values.deployment.pod.labels }}
         {{ toYaml .Values.deployment.pod.labels | nindent 8 }}
         {{- end }}
     spec:
+      serviceAccountName: {{ .Values.serviceAccount.name }}
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"

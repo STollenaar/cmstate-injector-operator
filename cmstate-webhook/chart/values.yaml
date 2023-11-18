@@ -46,13 +46,16 @@ rbac:
       - apiGroups: [""]
         resources: ["pods"]
         verbs: ["get", "list", "watch"]
+      - apiGroups: ["cache.spices.dev"]
+        resources: ["cmstates"]
+        verbs: ["create", "get", "list", "watch"]
 
 webhook:
   labels: {}
   annotations: {}
 
 cmstate-operator:
-  enabled:  false
+  enabled: false
   global:
     labels:
       app: cmstate-operator

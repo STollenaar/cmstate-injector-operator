@@ -4,7 +4,7 @@ metadata:
   name: {{ .Values.service.name }}
   namespace:  {{ .Release.Namespace }}
   labels:
-    {{- if or .Values.global.labels }}
+    {{- if .Values.global.labels }}
     {{ toYaml .Values.global.labels | nindent 4 }}
     {{- end }}
     {{- if .Values.service.labels }}
@@ -12,7 +12,7 @@ metadata:
     {{- end }}
 spec:
   selector:
-    {{- if or .Values.global.labels }}
+    {{- if .Values.global.labels }}
     {{ toYaml .Values.global.labels | nindent 4 }}
     {{- end }}
     {{- if .Values.deployment.pod.labels }}
