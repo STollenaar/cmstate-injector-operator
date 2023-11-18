@@ -18,6 +18,20 @@ deployment:
   pod:
     labels: {}
     annotations: {}
+    volumes: []
+    # - name: testSecret
+    #   secret:
+    #     secretName: testSecret
+    #   mountPath: /tmp
+    # - name: testConfigMap
+    #   configMap:
+    #     name: testConfigMap
+    #   mountPath: /tmp
+    # - name: testPVC
+    #   persistentVolumeClaim:
+    #     claimname: testPVC
+    #   mountPath: /tmp
+    #   subPath: hello
 
 service:
   name: "cmstate-operator-service"
@@ -32,6 +46,10 @@ rbac:
       - apiGroups: [""]
         resources: ["pods"]
         verbs: ["get", "list", "watch"]
+
+webhook:
+  labels: {}
+  annotations: {}
 
 cmstate-operator:
   enabled:  false

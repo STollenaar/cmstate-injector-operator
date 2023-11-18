@@ -44,3 +44,27 @@ spec:
                 - ALL
             readOnlyRootFilesystem: true
             runAsNonRoot: false
+            volumeMounts:
+            {{- range $v := .Values.deployment.pod.volumes }}
+            - name: {{ $v.name }}
+              mountPath: {{ $v.mountPath }}
+              {{- if (hasKey $v "subPath") }}
+              subPath: {{ $v.subPath }}
+              {{- end }}
+            {{- end}}
+      volumes:
+      {{- range $v := .Values.deployment.pod.volumes }}
+      - name: {{ $v.name }}
+        {{- if (hasKey $v "secret") }}
+        secret:
+          secretName: {{ $v.secret.secretName}}
+        {{- end}}
+        {{- if (hasKey $v "configMap") }}
+        configMap:
+          name: {{ $v.configMap.name}}
+        {{- end}}
+        {{- if (hasKey $v "persistentVolumeClaim") }}
+        persistentVolumeClaim:
+          claimName: {{ $v.persistentVolumeClaim.claimName}}
+        {{- end}}
+      {{- end}}
