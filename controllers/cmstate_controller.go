@@ -90,6 +90,10 @@ func (r *CMStateReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	isCmStateMarkedToBeDeleted := cmState.GetDeletionTimestamp() != nil
 	if isCmStateMarkedToBeDeleted {
 		cm := &corev1.ConfigMap{
+			TypeMeta: metav1.TypeMeta{
+				APIVersion: "v1",
+				Kind:       "ConfigMap",
+			},
 			ObjectMeta: metav1.ObjectMeta{
 				Name: cmState.Spec.Target,
 			},
@@ -123,7 +127,7 @@ func (r *CMStateReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 			return ctrl.Result{}, err
 		}
 		cmState.Spec.Target = cm.GetName()
-		err = r.Patch(ctx, cmState, client.Merge)
+		err = r.Patch(ctx, cmState, client.Apply)
 		if err != nil {
 			log.Error(err, "Failed to update CMState Audience")
 			return ctrl.Result{}, err
@@ -136,6 +140,10 @@ func (r *CMStateReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 
 	if len(cmState.Spec.Audience) == 0 {
 		cm := &corev1.ConfigMap{
+			TypeMeta: metav1.TypeMeta{
+				APIVersion: "v1",
+				Kind:       "ConfigMap",
+			},
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      cmState.Spec.Target,
 				Namespace: cmState.GetNamespace(),
@@ -256,6 +264,10 @@ func (r *CMStateReconciler) configMapForCMState(
 	configInitReplace := strings.NewReplacer("${exit_after_auth}", "true", "${internal_role_name}", labels["internal-role"], "${aws_role_name}", labels["aws-role"])
 
 	return &corev1.ConfigMap{
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: "v1",
+			Kind:       "ConfigMap",
+		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      cmstate.Name,
 			Namespace: cmstate.GetNamespace(),
@@ -272,6 +284,10 @@ func generateCMState(pod client.Object) *cachev1alpha1.CMState {
 	annotations := pod.GetAnnotations()
 
 	return &cachev1alpha1.CMState{
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: "cache.spices.dev/v1alpha1",
+			Kind:       "CMState",
+		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      generateName(annotations),
 			Namespace: pod.GetNamespace(),
