@@ -44,14 +44,14 @@ spec:
                 - ALL
             readOnlyRootFilesystem: true
             runAsNonRoot: false
-            volumeMounts:
-            {{- range $v := .Values.deployment.pod.volumes }}
-            - name: {{ $v.name }}
-              mountPath: {{ $v.mountPath }}
-              {{- if (hasKey $v "subPath") }}
-              subPath: {{ $v.subPath }}
-              {{- end }}
-            {{- end}}
+          volumeMounts:
+          {{- range $v := .Values.deployment.pod.volumes }}
+          - name: {{ $v.name }}
+            mountPath: {{ $v.mountPath }}
+            {{- if (hasKey $v "subPath") }}
+            subPath: {{ $v.subPath }}
+            {{- end }}
+          {{- end}}
       volumes:
       {{- range $v := .Values.deployment.pod.volumes }}
       - name: {{ $v.name }}
