@@ -10,11 +10,11 @@ metadata:
     {{ toYaml .Values.webhook.labels | nindent 4 }}
     {{- end }}
   annotations:
-    {{- if or .Values.global.labels }}
-    {{ toYaml .Values.global.labels | nindent 4 }}
+    {{- if or .Values.global.annotations }}
+    {{ toYaml .Values.global.annotations | nindent 4 }}
     {{- end }}
-    {{- if .Values.webhook.labels }}
-    {{ toYaml .Values.webhook.labels | nindent 4 }}
+    {{- if .Values.webhook.annotations }}
+    {{ toYaml .Values.webhook.annotations | nindent 4 }}
     {{- end }}
 webhooks:
   - name: cmstate-operator-webhook.spices.dev
