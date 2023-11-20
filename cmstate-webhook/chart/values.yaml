@@ -49,6 +49,12 @@ rbac:
       - apiGroups: ["cache.spices.dev"]
         resources: ["cmstates"]
         verbs: ["create", "get", "list", "watch"]
+      - apiGroups: ["cache.spices.dev"]
+        resources: ["cmtemplates"]
+        verbs: ["get","list","watch"]
+      - apiGroups: ["cache.spices.dev"]
+        resources: ["cmtemplates/status"]
+        verbs: ["get"]
 
 webhook:
   labels: {}
