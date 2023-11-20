@@ -308,5 +308,5 @@ func generateCMState(pod client.Object) *cachev1alpha1.CMState {
 }
 
 func generateName(annotations map[string]string) string {
-	return strings.ReplaceAll(fmt.Sprintf("cmstate-%s-%s", annotations["vault.hashicorp.com/agent-internal-role"], annotations["vault.hashicorp.com/agent-aws-role"]), "_", "-")
+	return strings.ToLower(strings.ReplaceAll(fmt.Sprintf("cmstate-%s-%s", annotations["vault.hashicorp.com/agent-internal-role"], annotations["vault.hashicorp.com/agent-aws-role"]), "_", "-"))
 }
