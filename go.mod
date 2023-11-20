@@ -1,10 +1,11 @@
-module github.com/stollenaar/cm-injector-operator
+module github.com/stollenaar/cmstate-injector-operator
 
 go 1.19
 
 require (
 	github.com/onsi/ginkgo/v2 v2.6.0
 	github.com/onsi/gomega v1.24.1
+	github.com/stollenaar/cm-injector-operator v0.0.0-20231120164031-2fbd36d615b3
 	k8s.io/api v0.26.0
 	k8s.io/apimachinery v0.26.0
 	k8s.io/client-go v0.26.0
