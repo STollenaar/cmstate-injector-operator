@@ -25,7 +25,7 @@ import (
 
 type Template struct {
 	AnnotationReplace map[string]string `json:"annotationreplace"`
-	CMTemplate  map[string]string `json:"cmtemplate"`
+	CMTemplate        map[string]string `json:"cmtemplate"`
 }
 
 // CMTemplateSpec defines the desired state of CMTemplate
@@ -44,6 +44,7 @@ type CMTemplateStatus struct {
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
+//+kubebuilder:resource:scope=Cluster
 
 // CMTemplate is the Schema for the cmtemplates API
 type CMTemplate struct {

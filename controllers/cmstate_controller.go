@@ -20,7 +20,6 @@ import (
 	"context"
 	_ "embed"
 	"fmt"
-	"os"
 	"strings"
 
 	corev1 "k8s.io/api/core/v1"
@@ -34,10 +33,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/event"
 	"sigs.k8s.io/controller-runtime/pkg/log"
-	"sigs.k8s.io/controller-runtime/pkg/predicate"
-	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
 	cachev1alpha1 "github.com/stollenaar/cmstate-injector-operator/api/v1alpha1"
 )
@@ -47,21 +43,6 @@ const (
 	// typeAvailableCMState represents the status of the ConfigMap reconciliation
 	typeAvailableCMState = "Available"
 )
-
-var (
-	//go:embed vault-agent.hcl.tpl
-	agentTemplate string
-	ownNamespace  string
-)
-
-// TODO: this is ugly and needs to be better
-func init() {
-	d, err := os.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace")
-	if err != nil {
-		panic(err)
-	}
-	ownNamespace = string(d)
-}
 
 // CMStateReconciler reconciles a CMState object
 type CMStateReconciler struct {
@@ -182,97 +163,12 @@ func (r *CMStateReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func eventFilter() predicate.Predicate {
-	return predicate.Funcs{
-		CreateFunc: func(e event.CreateEvent) bool {
-			annotations := e.Object.GetAnnotations()
-			vi := annotations["vault.hashicorp.com/agent-inject"]
-			vir := annotations["vault.hashicorp.com/agent-internal-role"]
-			vawsr := annotations["vault.hashicorp.com/agent-aws-role"]
-			return vi == "true" && vir != "" && vawsr != ""
-		},
-		DeleteFunc: func(e event.DeleteEvent) bool {
-			annotations := e.Object.GetAnnotations()
-			vi := annotations["vault.hashicorp.com/agent-inject"]
-			vir := annotations["vault.hashicorp.com/agent-internal-role"]
-			vawsr := annotations["vault.hashicorp.com/agent-aws-role"]
-			return vi == "true" && vir != "" && vawsr != ""
-		},
-	}
-}
-
-func (r *CMStateReconciler) findObjectsForCMState(pod client.Object) []reconcile.Request {
-	ctx := context.TODO()
-	log := log.FromContext(ctx)
-
-	// Creating a selector based on the current pod
-	annotations := pod.GetAnnotations()
-	name := generateName(annotations)
-
-	cmState := &cachev1alpha1.CMState{}
-
-	// If no CMState exists yet we create and add it to the reconcile loop
-	err := r.Get(ctx, types.NamespacedName{Namespace: pod.GetNamespace(), Name: name}, cmState)
-	if err != nil && apierrors.IsNotFound(err) {
-		cm := generateCMState(pod)
-		log.Info("Generating cmState", "CMState", cm)
-		err = r.Create(ctx, cm)
-		if err != nil {
-			log.Error(err, "Error creating cmState")
-			return []reconcile.Request{}
-		}
-		return []reconcile.Request{}
-	}
-	var requests []reconcile.Request
-
-	// Check if the pod is being deleted or being created
-	isPodToBeDeleted := pod.GetDeletionTimestamp() != nil
-	if isPodToBeDeleted {
-		requests = append(requests, reconcile.Request{
-			NamespacedName: types.NamespacedName{
-				Namespace: cmState.GetNamespace(),
-				Name:      cmState.GetName(),
-			},
-		})
-	} else {
-		// Pod is being created and an existing CMState exists so we add it to the audience
-		if !hasAudience(pod.GetName(), cmState.Spec.Audience) {
-			cmState.Spec.Audience = append(cmState.Spec.Audience, cachev1alpha1.CMAudience{
-				Kind: "Pod",
-				Name: pod.GetName(),
-			})
-			err = r.Patch(ctx, cmState, client.Merge)
-			if err != nil {
-				log.Error(err, "Error adding audience member to cmState")
-				return requests
-			}
-			requests = append(requests, reconcile.Request{
-				NamespacedName: types.NamespacedName{
-					Namespace: cmState.GetNamespace(),
-					Name:      cmState.GetName(),
-				},
-			})
-		}
-	}
-	return requests
-}
-
-func hasAudience(podName string, audience []cachev1alpha1.CMAudience) bool {
-	for _, aud := range audience {
-		if aud.Name == podName {
-			return true
-		}
-	}
-	return false
-}
-
 // configMapForCMState returns a CMState Deployment object
 func (r *CMStateReconciler) configMapForCMState(
 	cmstate *cachev1alpha1.CMState, ctx context.Context) (*corev1.ConfigMap, error) {
 	cmTemplate := &cachev1alpha1.CMTemplate{}
 	err := r.Get(ctx, types.NamespacedName{
-		Namespace: ownNamespace,
-		Name:      cmstate.Spec.CMTemplate,
+		Name: cmstate.Spec.CMTemplate,
 	}, cmTemplate)
 	if err != nil {
 		return nil, err
@@ -282,10 +178,10 @@ func (r *CMStateReconciler) configMapForCMState(
 
 	data := make(map[string]string)
 
-	for key, template :=range cmTemplate.Spec.Template.CMTemplate {
+	for key, template := range cmTemplate.Spec.Template.CMTemplate {
 		for annotation, templateKey := range cmTemplate.Spec.Template.AnnotationReplace {
-			template = strings.ReplaceAll(template,templateKey, labels[annotation] )
-		} 
+			template = strings.ReplaceAll(template, templateKey, labels[annotation])
+		}
 		data[key] = template
 	}
 	// configReplace := strings.NewReplacer("${exit_after_auth}", "false", "${internal_role_name}", labels["internal-role"], "${aws_role_name}", labels["aws-role"])
@@ -306,36 +202,4 @@ func (r *CMStateReconciler) configMapForCMState(
 		// 	"config-init.hcl": configInitReplace.Replace(agentTemplate),
 		// },
 	}, nil
-}
-
-// Generating a CMState used for later
-func generateCMState(pod client.Object) *cachev1alpha1.CMState {
-	annotations := pod.GetAnnotations()
-
-	return &cachev1alpha1.CMState{
-		TypeMeta: metav1.TypeMeta{
-			APIVersion: "cache.spices.dev/v1alpha1",
-			Kind:       "CMState",
-		},
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      generateName(annotations),
-			Namespace: pod.GetNamespace(),
-			Labels: map[string]string{
-				"aws-role":      annotations["vault.hashicorp.com/agent-aws-role"],
-				"internal-role": annotations["vault.hashicorp.com/agent-internal-role"],
-			},
-		},
-		Spec: cachev1alpha1.CMStateSpec{
-			Audience: []cachev1alpha1.CMAudience{
-				{
-					Kind: "Pod",
-					Name: pod.GetName(),
-				},
-			},
-		},
-	}
-}
-
-func generateName(annotations map[string]string) string {
-	return strings.ToLower(strings.ReplaceAll(fmt.Sprintf("cmstate-%s-%s", annotations["vault.hashicorp.com/agent-internal-role"], annotations["vault.hashicorp.com/agent-aws-role"]), "_", "-"))
 }

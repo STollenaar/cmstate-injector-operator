@@ -43,3 +43,29 @@ rules:
   - get
   - patch
   - update
+- apiGroups:
+  - cache.spices.dev
+  resources:
+  - cmtemplates
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - cache.spices.dev
+  resources:
+  - cmtemplates/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - cache.spices.dev
+  resources:
+  - cmtemplates/status
+  verbs:
+  - get
+  - patch
+  - update
