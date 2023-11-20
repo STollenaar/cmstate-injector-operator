@@ -3,7 +3,7 @@ module github.com/stollenaar/pod-mutating-wh
 go 1.21.1
 
 require (
-	github.com/stollenaar/cm-injector-operator v0.0.0-20231113184517-2b841ee6f4df
+	github.com/stollenaar/cmstate-injector-operator v0.0.0-20231120164524-8fa75af4726f
 	k8s.io/api v0.28.3
 	k8s.io/apimachinery v0.28.3
 	k8s.io/client-go v0.28.3

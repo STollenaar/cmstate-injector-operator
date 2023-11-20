@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	cachev1alpha1 "github.com/stollenaar/cm-injector-operator/api/v1alpha1"
+	cachev1alpha1 "github.com/stollenaar/cmstate-injector-operator/api/v1alpha1"
 	"k8s.io/api/admission/v1beta1"
 	v1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -96,12 +96,12 @@ func handleMutate(w http.ResponseWriter, r *http.Request) {
 		UID:     review.Request.UID,
 	}
 	cmState := &cachev1alpha1.CMState{}
-	var cmStateData []byte
-	if pod.Annotations["vault.hashicorp.com/agent-inject"] != "" &&
-		pod.Annotations["vault.hashicorp.com/agent-internal-role"] != "" &&
-		pod.Annotations["vault.hashicorp.com/agent-aws-role"] != "" {
+	var cmStateData, cmTemplateData []byte
 
-		crdName := generateName(pod.Annotations)
+	cmTemplate := &cachev1alpha1.CMTemplate{}
+	if pod.Annotations["cache.spices.dev/cmtemplate"] != "" {
+
+		crdName := generateName(pod.Annotations["cache.spices.dev/cmtemplate"])
 
 		// get a list of our CRs
 		r := clientSet.RESTClient().
@@ -122,6 +122,24 @@ func handleMutate(w http.ResponseWriter, r *http.Request) {
 				panic(err)
 			}
 		}
+		// get a list of our CRs
+		r = clientSet.RESTClient().
+			Get().
+			AbsPath(
+				fmt.Sprintf("/apis/cache.spices.dev/v1alpha1/%s",
+					"cmtemplates",
+				),
+			).
+			Name(pod.Annotations["cache.spices.dev/cmtemplate"])
+		cmTemplateData, err = r.DoRaw(context.TODO())
+		if err != nil && !apierrors.IsNotFound(err) {
+			err = fmt.Errorf("fetching cmtemplate has resulted in an error: %v, with response %s", err, string(cmTemplateData))
+			panic(err)
+		} else if !apierrors.IsNotFound(err) {
+			if err := json.Unmarshal(cmTemplateData, cmTemplate); err != nil {
+				panic(err)
+			}
+		}
 	} else {
 		handleResponse(review, w, r)
 		return
@@ -129,7 +147,7 @@ func handleMutate(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Printf("Ready to handle %s event\n", ar.Operation)
 	if ar.Operation == v1beta1.Create {
-		review.Response = handlePodCreate(cmState, cmStateData, pod, err)
+		review.Response = handlePodCreate(cmState, cmStateData, cmTemplate, pod, err)
 	} else if ar.Operation == v1beta1.Delete {
 		review.Response = handlePodDelete(cmState, cmStateData, pod, err)
 	}
@@ -213,14 +231,14 @@ func handlePodDelete(cmState *cachev1alpha1.CMState, cmStateData []byte, pod *v1
 	return response
 }
 
-func handlePodCreate(cmState *cachev1alpha1.CMState, cmStateData []byte, pod *v1.Pod, err error) *v1beta1.AdmissionResponse {
+func handlePodCreate(cmState *cachev1alpha1.CMState, cmStateData []byte, cmTemplate *cachev1alpha1.CMTemplate, pod *v1.Pod, err error) *v1beta1.AdmissionResponse {
 	response := &v1beta1.AdmissionResponse{
 		Allowed: true,
 	}
 
 	if apierrors.IsNotFound(err) {
 		// create the cmstate
-		cmState = generateCMState(pod)
+		cmState = generateCMState(cmTemplate, pod)
 
 		body, _ := json.Marshal(cmState)
 
@@ -259,8 +277,13 @@ func handlePodCreate(cmState *cachev1alpha1.CMState, cmStateData []byte, pod *v1
 }
 
 // Generating a CMState used for later
-func generateCMState(pod *v1.Pod) *cachev1alpha1.CMState {
+func generateCMState(cmTemplate *cachev1alpha1.CMTemplate, pod *v1.Pod) *cachev1alpha1.CMState {
 	annotations := pod.GetAnnotations()
+
+	labels := make(map[string]string)
+	for annotation := range cmTemplate.Spec.Template.AnnotationReplace {
+		labels[annotation] = annotations[annotation]
+	}
 
 	return &cachev1alpha1.CMState{
 		TypeMeta: metav1.TypeMeta{
@@ -268,12 +291,9 @@ func generateCMState(pod *v1.Pod) *cachev1alpha1.CMState {
 			Kind:       "CMState",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      generateName(annotations),
+			Name:      generateName(cmTemplate.Name),
 			Namespace: pod.GetNamespace(),
-			Labels: map[string]string{
-				"aws-role":      annotations["vault.hashicorp.com/agent-aws-role"],
-				"internal-role": annotations["vault.hashicorp.com/agent-internal-role"],
-			},
+			Labels:    labels,
 		},
 		Spec: cachev1alpha1.CMStateSpec{
 			Audience: []cachev1alpha1.CMAudience{
@@ -282,12 +302,13 @@ func generateCMState(pod *v1.Pod) *cachev1alpha1.CMState {
 					Name: pod.GetName(),
 				},
 			},
+			CMTemplate: cmTemplate.Name,
 		},
 	}
 }
 
-func generateName(annotations map[string]string) string {
-	return strings.ToLower(strings.ReplaceAll(fmt.Sprintf("cmstate-%s-%s", annotations["vault.hashicorp.com/agent-internal-role"], annotations["vault.hashicorp.com/agent-aws-role"]), "_", "-"))
+func generateName(cmTemplateName string) string {
+	return strings.ToLower(strings.ReplaceAll(fmt.Sprintf("cmstate-%s", cmTemplateName), "_", "-"))
 }
 
 func findIndex(slice []cachev1alpha1.CMAudience, name string) int {
