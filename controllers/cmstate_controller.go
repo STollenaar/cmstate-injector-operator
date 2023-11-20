@@ -159,6 +159,7 @@ func (r *CMStateReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 func (r *CMStateReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&cachev1alpha1.CMState{}).
+		Named("CMStateController").
 		Owns(&corev1.ConfigMap{}).
 		Complete(r)
 }
