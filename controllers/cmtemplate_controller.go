@@ -19,7 +19,7 @@ package controllers
 import (
 	"context"
 
-	cachev1alpha1 "github.com/stollenaar/cm-injector-operator/api/v1alpha1"
+	cachev1alpha1 "github.com/stollenaar/cmstate-injector-operator/api/v1alpha1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"

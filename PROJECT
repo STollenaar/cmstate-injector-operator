@@ -9,7 +9,7 @@ plugins:
   manifests.sdk.operatorframework.io/v2: {}
   scorecard.sdk.operatorframework.io/v2: {}
 projectName: cm-injector-operator
-repo: github.com/stollenaar/cm-injector-operator
+repo: github.com/stollenaar/cmstate-injector-operator
 resources:
 - api:
     crdVersion: v1
@@ -18,7 +18,7 @@ resources:
   domain: spices.dev
   group: cache
   kind: CMState
-  path: github.com/stollenaar/cm-injector-operator/api/v1alpha1
+  path: github.com/stollenaar/cmstate-injector-operator/api/v1alpha1
   version: v1alpha1
   webhooks:
     defaulting: true
@@ -36,7 +36,7 @@ resources:
   domain: spices.dev
   group: core
   kind: Pod
-  path: github.com/stollenaar/cm-injector-operator/api/v1
+  path: github.com/stollenaar/cmstate-injector-operator/api/v1
   version: v1
   webhooks:
     defaulting: true
@@ -48,6 +48,6 @@ resources:
   domain: spices.dev
   group: cache
   kind: CMTemplate
-  path: github.com/stollenaar/cm-injector-operator/api/v1alpha1
+  path: github.com/stollenaar/cmstate-injector-operator/api/v1alpha1
   version: v1alpha1
 version: "3"

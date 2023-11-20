@@ -39,7 +39,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	cachev1alpha1 "github.com/stollenaar/cm-injector-operator/api/v1alpha1"
+	cachev1alpha1 "github.com/stollenaar/cmstate-injector-operator/api/v1alpha1"
 )
 
 // Definitions to manage status conditions
