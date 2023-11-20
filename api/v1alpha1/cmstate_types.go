@@ -28,8 +28,9 @@ type CMAudience struct {
 // Important: Run "make" to regenerate code after modifying this file
 // CMStateSpec defines the desired state of CMState
 type CMStateSpec struct {
-	Audience []CMAudience `json:"audience"`
-	Target   string       `json:"target,omitempty"`
+	Audience   []CMAudience `json:"audience"`
+	Target     string       `json:"target,omitempty"`
+	CMTemplate string       `json:"cmtemplate"`
 }
 
 // CMStateStatus defines the observed state of CMState

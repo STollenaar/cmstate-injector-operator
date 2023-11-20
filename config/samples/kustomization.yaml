@@ -2,4 +2,5 @@
 resources:
 - cache_v1alpha1_cmstate.yaml
 - core_v1_pod.yaml
+- cache_v1alpha1_cmtemplate.yaml
 #+kubebuilder:scaffold:manifestskustomizesamples

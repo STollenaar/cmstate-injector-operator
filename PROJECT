@@ -41,4 +41,13 @@ resources:
   webhooks:
     defaulting: true
     webhookVersion: v1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: spices.dev
+  group: cache
+  kind: CMTemplate
+  path: github.com/stollenaar/cm-injector-operator/api/v1alpha1
+  version: v1alpha1
 version: "3"

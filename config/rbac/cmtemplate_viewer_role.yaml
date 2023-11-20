@@ -1,0 +1,27 @@
+# permissions for end users to view cmtemplates.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: clusterrole
+    app.kubernetes.io/instance: cmtemplate-viewer-role
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: cm-injector-operator
+    app.kubernetes.io/part-of: cm-injector-operator
+    app.kubernetes.io/managed-by: kustomize
+  name: cmtemplate-viewer-role
+rules:
+- apiGroups:
+  - cache.spices.dev
+  resources:
+  - cmtemplates
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - cache.spices.dev
+  resources:
+  - cmtemplates/status
+  verbs:
+  - get

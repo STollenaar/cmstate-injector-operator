@@ -20,6 +20,7 @@ import (
 	"context"
 	_ "embed"
 	"fmt"
+	"os"
 	"strings"
 
 	corev1 "k8s.io/api/core/v1"
@@ -50,7 +51,17 @@ const (
 var (
 	//go:embed vault-agent.hcl.tpl
 	agentTemplate string
+	ownNamespace  string
 )
+
+// TODO: this is ugly and needs to be better
+func init() {
+	d, err := os.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace")
+	if err != nil {
+		panic(err)
+	}
+	ownNamespace = string(d)
+}
 
 // CMStateReconciler reconciles a CMState object
 type CMStateReconciler struct {
@@ -105,7 +116,7 @@ func (r *CMStateReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	found := &corev1.ConfigMap{}
 	err = r.Get(ctx, types.NamespacedName{Name: cmState.Spec.Target, Namespace: cmState.Namespace}, found)
 	if cmState.Spec.Target == "" {
-		cm, err := r.configMapForCMState(cmState)
+		cm, err := r.configMapForCMState(cmState, ctx)
 		if err != nil {
 			log.Error(err, "Failed to define new Configmap resource for CMState")
 
@@ -257,11 +268,28 @@ func hasAudience(podName string, audience []cachev1alpha1.CMAudience) bool {
 
 // configMapForCMState returns a CMState Deployment object
 func (r *CMStateReconciler) configMapForCMState(
-	cmstate *cachev1alpha1.CMState) (*corev1.ConfigMap, error) {
+	cmstate *cachev1alpha1.CMState, ctx context.Context) (*corev1.ConfigMap, error) {
+	cmTemplate := &cachev1alpha1.CMTemplate{}
+	err := r.Get(ctx, types.NamespacedName{
+		Namespace: ownNamespace,
+		Name:      cmstate.Spec.CMTemplate,
+	}, cmTemplate)
+	if err != nil {
+		return nil, err
+	}
+
 	labels := cmstate.GetLabels()
 
-	configReplace := strings.NewReplacer("${exit_after_auth}", "false", "${internal_role_name}", labels["internal-role"], "${aws_role_name}", labels["aws-role"])
-	configInitReplace := strings.NewReplacer("${exit_after_auth}", "true", "${internal_role_name}", labels["internal-role"], "${aws_role_name}", labels["aws-role"])
+	data := make(map[string]string)
+
+	for key, template :=range cmTemplate.Spec.Template.CMTemplate {
+		for annotation, templateKey := range cmTemplate.Spec.Template.AnnotationReplace {
+			template = strings.ReplaceAll(template,templateKey, labels[annotation] )
+		} 
+		data[key] = template
+	}
+	// configReplace := strings.NewReplacer("${exit_after_auth}", "false", "${internal_role_name}", labels["internal-role"], "${aws_role_name}", labels["aws-role"])
+	// configInitReplace := strings.NewReplacer("${exit_after_auth}", "true", "${internal_role_name}", labels["internal-role"], "${aws_role_name}", labels["aws-role"])
 
 	return &corev1.ConfigMap{
 		TypeMeta: metav1.TypeMeta{
@@ -272,10 +300,11 @@ func (r *CMStateReconciler) configMapForCMState(
 			Name:      cmstate.Name,
 			Namespace: cmstate.GetNamespace(),
 		},
-		Data: map[string]string{
-			"config.hcl":      configReplace.Replace(agentTemplate),
-			"config-init.hcl": configInitReplace.Replace(agentTemplate),
-		},
+		Data: data,
+		// Data: map[string]string{
+		// 	"config.hcl":      configReplace.Replace(agentTemplate),
+		// 	"config-init.hcl": configInitReplace.Replace(agentTemplate),
+		// },
 	}, nil
 }
 
