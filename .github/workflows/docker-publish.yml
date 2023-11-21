@@ -14,7 +14,6 @@ env:
   REGISTRY: public.ecr.aws/x4a1o1q2
   # github.repository as <account>/<repo>
   IMAGE_NAME: ${{ github.repository }}
-  IAM_ROLE_ARN: arn:aws:iam::123456789012:role/github-actions
 
 jobs:
   build:
@@ -34,7 +33,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4 # More information on this action can be found below in the 'AWS Credentials' section
         with:
-          role-to-assume: ${{ env.IAM_ROLE_ARN }}
+          role-to-assume: ${{ vars.IAM_ROLE_ARN }}
           aws-region: ca-central-1
 
       # Install the cosign tool except on PR
