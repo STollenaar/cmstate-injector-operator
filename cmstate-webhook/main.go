@@ -150,9 +150,9 @@ func handleMutate(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Printf("Ready to handle %s event\n", ar.Operation)
 	if ar.Operation == v1beta1.Create {
-		review.Response = handlePodCreate(cmState, cmStateData, cmTemplate, pod, err)
+		review.Response = handlePodCreate(cmState, cmStateData, cmTemplate, pod)
 	} else if ar.Operation == v1beta1.Delete {
-		review.Response = handlePodDelete(cmState, cmStateData, pod, err)
+		review.Response = handlePodDelete(cmState, cmStateData, pod)
 	}
 
 	handleResponse(review, w, r)
@@ -191,7 +191,7 @@ func handleResponse(review v1beta1.AdmissionReview, w http.ResponseWriter, r *ht
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	fmt.Printf("Ready to write reponse ...")
+	fmt.Printf("Ready to write reponse ...\n")
 	if _, err := w.Write(resp); err != nil {
 		err = fmt.Errorf("can't write response: %v", err)
 		fmt.Println(err)
@@ -200,23 +200,28 @@ func handleResponse(review v1beta1.AdmissionReview, w http.ResponseWriter, r *ht
 	}
 }
 
-func handlePodDelete(cmState *cachev1alpha1.CMState, cmStateData []byte, pod *v1.Pod, err error) *v1beta1.AdmissionResponse {
+func handlePodDelete(cmState *cachev1alpha1.CMState, cmStateData []byte, pod *v1.Pod) *v1beta1.AdmissionResponse {
 	response := &v1beta1.AdmissionResponse{
 		Allowed: true,
 	}
-	if apierrors.IsNotFound(err) {
+	if cmState.Name == "" {
 		return response
 	} else if err := json.Unmarshal(cmStateData, cmState); err != nil {
 		panic(err)
 	}
-	index := findIndex(cmState.Spec.Audience, pod.Name)
+	podName := pod.GetName()
+	if pod.GetGenerateName() != "" {
+		podName = pod.GetGenerateName()
+	}
+
+	index := findIndex(cmState.Spec.Audience, podName)
 	if index == -1 {
 		return response
 	}
 	cmState.Spec.Audience = append(cmState.Spec.Audience[:index], cmState.Spec.Audience[index+1:]...)
 
 	body, _ := json.Marshal(cmState)
-	cmStateData, err = clientSet.RESTClient().Patch(types.MergePatchType).
+	cmStateData, err := clientSet.RESTClient().Patch(types.MergePatchType).
 		AbsPath(
 			fmt.Sprintf("/apis/cache.spices.dev/v1alpha1/namespaces/%s/%s",
 				pod.Namespace,
@@ -234,7 +239,7 @@ func handlePodDelete(cmState *cachev1alpha1.CMState, cmStateData []byte, pod *v1
 	return response
 }
 
-func handlePodCreate(cmState *cachev1alpha1.CMState, cmStateData []byte, cmTemplate *cachev1alpha1.CMTemplate, pod *v1.Pod, err error) *v1beta1.AdmissionResponse {
+func handlePodCreate(cmState *cachev1alpha1.CMState, cmStateData []byte, cmTemplate *cachev1alpha1.CMTemplate, pod *v1.Pod) *v1beta1.AdmissionResponse {
 	response := &v1beta1.AdmissionResponse{
 		Allowed: true,
 	}
@@ -245,7 +250,7 @@ func handlePodCreate(cmState *cachev1alpha1.CMState, cmStateData []byte, cmTempl
 
 		body, _ := json.Marshal(cmState)
 
-		cmStateData, err = clientSet.RESTClient().Post().
+		cmStateData, err := clientSet.RESTClient().Post().
 			AbsPath(
 				fmt.Sprintf("/apis/cache.spices.dev/v1alpha1/namespaces/%s/%s",
 					pod.Namespace,
@@ -271,7 +276,6 @@ func handlePodCreate(cmState *cachev1alpha1.CMState, cmStateData []byte, cmTempl
 		},
 	}
 	pData, _ := json.Marshal(patch)
-	fmt.Println(string(pData))
 	response.Patch = pData
 	pt := v1beta1.PatchTypeJSONPatch
 	response.PatchType = &pt
@@ -288,6 +292,10 @@ func generateCMState(cmTemplate *cachev1alpha1.CMTemplate, pod *v1.Pod) *cachev1
 		labels[annotation] = annotations[annotation]
 	}
 
+	podName := pod.GetName()
+	if podName == "" {
+		podName = pod.GetGenerateName()
+	}
 	return &cachev1alpha1.CMState{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: "cache.spices.dev/v1alpha1",
@@ -302,7 +310,7 @@ func generateCMState(cmTemplate *cachev1alpha1.CMTemplate, pod *v1.Pod) *cachev1
 			Audience: []cachev1alpha1.CMAudience{
 				{
 					Kind: "Pod",
-					Name: pod.GetName(),
+					Name: podName,
 				},
 			},
 			CMTemplate: cmTemplate.Name,
