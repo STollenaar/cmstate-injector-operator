@@ -19,7 +19,7 @@ jobs:
                 uses: actions/checkout@v4
 
             -   name: Fetch history
-                run: git fetch --prune --unshallow
+                run: git fetch
 
             -   name: Configure Git
                 run: |
