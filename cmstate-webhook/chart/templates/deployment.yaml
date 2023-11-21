@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "chart.fullname" . }}
+  namespace:  {{ .Release.Namespace }}
+  labels:
+    {{- if .Values.global.labels }}
+    {{ toYaml .Values.global.labels | nindent 4 }}
+    {{- end }}
+    {{- if .Values.deployment.labels }}
+    {{ toYaml .Values.deployment.labels | nindent 4 }}
+    {{- end }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  replicas: 1
+  selector:
+    matchLabels:
+        {{- if .Values.global.labels }}
+        {{ toYaml .Values.global.labels | nindent 8 }}
+        {{- end }}
+        {{- if .Values.deployment.labels }}
+        {{ toYaml .Values.deployment.labels | nindent 8 }}
+        {{- end }}
+  template:
+    metadata:
+      labels:
+        {{- if .Values.global.labels }}
+        {{ toYaml .Values.global.labels | nindent 8 }}
+        {{- end }}
+        {{- if .Values.deployment.pod.labels }}
+        {{ toYaml .Values.deployment.pod.labels | nindent 8 }}
+        {{- end }}
+    spec:
+      serviceAccountName: {{ .Values.serviceAccount.name }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 8443
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+                drop:
+                - ALL
+            readOnlyRootFilesystem: true
+            runAsNonRoot: false
+          volumeMounts:
+          {{- range $v := .Values.deployment.pod.volumes }}
+          - name: {{ $v.name }}
+            mountPath: {{ $v.mountPath }}
+            {{- if (hasKey $v "subPath") }}
+            subPath: {{ $v.subPath }}
+            {{- end }}
+          {{- end}}
+      volumes:
+      {{- range $v := .Values.deployment.pod.volumes }}
+      - name: {{ $v.name }}
+        {{- if (hasKey $v "secret") }}
+        secret:
+          secretName: {{ $v.secret.secretName}}
+        {{- end}}
+        {{- if (hasKey $v "configMap") }}
+        configMap:
+          name: {{ $v.configMap.name}}
+        {{- end}}
+        {{- if (hasKey $v "persistentVolumeClaim") }}
+        persistentVolumeClaim:
+          claimName: {{ $v.persistentVolumeClaim.claimName}}
+        {{- end}}
+      {{- end}}

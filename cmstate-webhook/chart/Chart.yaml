@@ -1,0 +1,11 @@
+apiVersion: v2
+name: cmstate-operator-webhook
+description: Helm chart for cmstate-operator-webhook
+version: 0.1.0
+appVersion: "0.1.0"
+
+dependencies:
+- name: cmstate-operator
+  version: "0.1.0"
+  repository: "https://stollenaar.github.io/cmstate-injector-operator"
+  condition: cmstate-operator.enabled
