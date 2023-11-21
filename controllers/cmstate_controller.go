@@ -35,6 +35,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
+	"github.com/go-logr/logr"
 	cachev1alpha1 "github.com/stollenaar/cmstate-injector-operator/api/v1alpha1"
 )
 
@@ -97,7 +98,7 @@ func (r *CMStateReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	found := &corev1.ConfigMap{}
 	err = r.Get(ctx, types.NamespacedName{Name: cmState.Spec.Target, Namespace: cmState.Namespace}, found)
 	if cmState.Spec.Target == "" {
-		cm, err := r.configMapForCMState(cmState, ctx)
+		cm, err := r.configMapForCMState(cmState, ctx, log)
 		if err != nil {
 			log.Error(err, "Failed to define new Configmap resource for CMState")
 
@@ -119,7 +120,7 @@ func (r *CMStateReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 			return ctrl.Result{}, err
 		}
 		cmState.Spec.Target = cm.GetName()
-		err = r.Patch(ctx, cmState, client.Apply)
+		err = r.Patch(ctx, cmState, client.Merge)
 		if err != nil {
 			log.Error(err, "Failed to update CMState Audience")
 			return ctrl.Result{}, err
@@ -166,12 +167,13 @@ func (r *CMStateReconciler) SetupWithManager(mgr ctrl.Manager) error {
 
 // configMapForCMState returns a CMState Deployment object
 func (r *CMStateReconciler) configMapForCMState(
-	cmstate *cachev1alpha1.CMState, ctx context.Context) (*corev1.ConfigMap, error) {
+	cmstate *cachev1alpha1.CMState, ctx context.Context, log logr.Logger) (*corev1.ConfigMap, error) {
 	cmTemplate := &cachev1alpha1.CMTemplate{}
 	err := r.Get(ctx, types.NamespacedName{
 		Name: cmstate.Spec.CMTemplate,
 	}, cmTemplate)
 	if err != nil {
+		log.Error(err, "Error fetching cmTemplate")
 		return nil, err
 	}
 

@@ -37,6 +37,10 @@ type CMTemplateReconciler struct {
 	Scheme *runtime.Scheme
 }
 
+func init() {
+	cmTemplates = make(map[string]cachev1alpha1.CMTemplateSpec)
+}
+
 //+kubebuilder:rbac:groups=cache.spices.dev,resources=cmtemplates,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=cache.spices.dev,resources=cmtemplates/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=cache.spices.dev,resources=cmtemplates/finalizers,verbs=update
