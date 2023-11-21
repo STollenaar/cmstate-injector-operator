@@ -34,6 +34,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4 # More information on this action can be found below in the 'AWS Credentials' section
         with:
           role-to-assume: ${{ vars.IAM_ROLE_ARN }}
+          role-session-name: GithubActions
           aws-region: ca-central-1
 
       # Install the cosign tool except on PR
