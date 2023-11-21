@@ -28,7 +28,7 @@ resources: {}
 
 serviceAccount:
   create: true
-  name: "cmstate-operator"
+  name: "cmstate-operator-sa"
 
 webhook:
   labels: {}
