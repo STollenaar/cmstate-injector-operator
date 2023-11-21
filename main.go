@@ -33,6 +33,7 @@ import (
 
 	cachev1alpha1 "github.com/stollenaar/cmstate-injector-operator/api/v1alpha1"
 	"github.com/stollenaar/cmstate-injector-operator/controllers"
+	"github.com/stollenaar/cmstate-injector-operator/webhook"
 	//+kubebuilder:scaffold:imports
 )
 
@@ -102,6 +103,11 @@ func main() {
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "CMTemplate")
+		os.Exit(1)
+	}
+
+	if err = webhook.CMStateCreator(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "CMTemplate")
 		os.Exit(1)
 	}

@@ -8,8 +8,10 @@ deployment:
   pod:
     labels: {}
     annotations: {}
+    volumes: []
 
 service:
+  name: "cmstate-operator-service"
   labels: {}
   annotations: {}
 
@@ -27,6 +29,10 @@ resources: {}
 serviceAccount:
   create: true
   name: "cmstate-operator"
+
+webhook:
+  labels: {}
+  annotations: {}
 
 rbac:
   create: true
