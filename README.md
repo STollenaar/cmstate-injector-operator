@@ -1,10 +1,10 @@
 # cm-injector-operator
 
-A simple ConfigMap injector for tracking AWS IAM role usages with Vault
+A simple ConfigMap injector for tracking various templates
 
 ## Description
 
-This Operator will create ConfigMaps of a given template when a pod is created that has certain annotations. This is so Vault can correctlty inject the right AWS IAM credentials
+This Operator will create ConfigMaps of a given template when a pod is created that has certain annotations. This can be used for example with Vault such that the Vault agent injects the right AWS credentials
 
 ## Getting Started
 
