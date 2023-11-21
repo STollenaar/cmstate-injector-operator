@@ -2,6 +2,16 @@ apiVersion: v1
 entries:
   cmstate-operator:
   - apiVersion: v2
+    appVersion: 0.2.1
+    created: "2023-11-21T16:53:19.614221146Z"
+    description: A Helm chart for Kubernetes
+    digest: 9634c962eb0efdce1a04bce82702f93df3677894a0bc0e6d6356a46c00e92981
+    name: cmstate-operator
+    type: application
+    urls:
+    - https://github.com/STollenaar/cmstate-injector-operator/releases/download/cmstate-operator-0.2.1/cmstate-operator-0.2.1.tgz
+    version: 0.2.1
+  - apiVersion: v2
     appVersion: 0.1.0
     created: "2023-11-20T16:01:51.254526094-03:30"
     description: A Helm chart for Kubernetes
@@ -11,4 +21,4 @@ entries:
     urls:
     - https://github.com/STollenaar/cmstate-injector-operator/releases/download/cmstate-operator-0.1.0/cmstate-operator-0.1.0.tgz
     version: 0.1.0
-generated: "2023-11-20T16:01:51.25363671-03:30"
+generated: "2023-11-21T16:53:19.614233919Z"
