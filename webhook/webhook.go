@@ -52,8 +52,16 @@ func (hook *cmStateCreator) Handle(ctx context.Context, req admission.Request) a
 func (hook *cmStateCreator) handleInner(ctx context.Context, req admission.Request) (*admission.Response, error) {
 	log := ctrl.Log.WithName("webhooks").WithName("CMStateCreator")
 
+	var err error
 	pod := &corev1.Pod{}
-	err := hook.decoder.Decode(req, pod)
+	if req.Operation == v1admission.Create {
+		err = hook.decoder.Decode(req, pod)
+	} else if req.Operation == v1admission.Delete {
+		err = hook.decoder.DecodeRaw(req.OldObject, pod)
+	} else {
+		resp := admission.Allowed("skipping cmstate check due to bad operation")
+		return &resp, nil
+	}
 	if err != nil {
 		log.Error(err, "Error decoding request into Pod")
 		return nil, errors.Wrap(err, "error decoding request into Pod")
@@ -200,4 +208,13 @@ func findIndex(slice []cachev1alpha1.CMAudience, name string) int {
 		}
 	}
 	return -1
+}
+
+// cmStateCreator implements admission.DecoderInjector.
+// A decoder will be automatically injected.
+
+// InjectDecoder injects the decoder.
+func (hook *cmStateCreator) InjectDecoder(d *admission.Decoder) error {
+	hook.decoder = d
+	return nil
 }
