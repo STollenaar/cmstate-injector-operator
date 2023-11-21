@@ -117,11 +117,12 @@ func handleMutate(w http.ResponseWriter, r *http.Request) {
 		if err != nil && !apierrors.IsNotFound(err) {
 			err = fmt.Errorf("fetching cmstate has resulted in an error: %v, with response %s", err, string(cmStateData))
 			panic(err)
-		} else if !apierrors.IsNotFound(err) {
+		} else if err == nil {
 			if err := json.Unmarshal(cmStateData, cmState); err != nil {
 				panic(err)
 			}
 		}
+
 		// get a list of our CRs
 		r = clientSet.RESTClient().
 			Get().
@@ -135,10 +136,12 @@ func handleMutate(w http.ResponseWriter, r *http.Request) {
 		if err != nil && !apierrors.IsNotFound(err) {
 			err = fmt.Errorf("fetching cmtemplate has resulted in an error: %v, with response %s", err, string(cmTemplateData))
 			panic(err)
-		} else if !apierrors.IsNotFound(err) {
+		} else if err == nil {
 			if err := json.Unmarshal(cmTemplateData, cmTemplate); err != nil {
 				panic(err)
 			}
+		} else {
+			panic(err)
 		}
 	} else {
 		handleResponse(review, w, r)
@@ -236,7 +239,7 @@ func handlePodCreate(cmState *cachev1alpha1.CMState, cmStateData []byte, cmTempl
 		Allowed: true,
 	}
 
-	if apierrors.IsNotFound(err) {
+	if cmState.Name == "" {
 		// create the cmstate
 		cmState = generateCMState(cmTemplate, pod)
 
