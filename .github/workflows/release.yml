@@ -15,7 +15,7 @@ jobs:
         steps:
             -   name: Checkout Code
                 with:
-                    fetch-detph: 0
+                    fetch-depth: 0
                 uses: actions/checkout@v4
 
             -   name: Fetch history
