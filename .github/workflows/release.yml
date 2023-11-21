@@ -18,9 +18,6 @@ jobs:
                     fetch-depth: 0
                 uses: actions/checkout@v4
 
-            -   name: Fetch history
-                run: git fetch
-
             -   name: Configure Git
                 run: |
                     git config user.name "$GITHUB_ACTOR"
