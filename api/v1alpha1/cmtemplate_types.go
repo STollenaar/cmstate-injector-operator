@@ -26,6 +26,7 @@ import (
 type Template struct {
 	AnnotationReplace map[string]string `json:"annotationreplace"`
 	CMTemplate        map[string]string `json:"cmtemplate"`
+	TargetAnnotation  string            `json:"targetAnnotation"`
 }
 
 // CMTemplateSpec defines the desired state of CMTemplate

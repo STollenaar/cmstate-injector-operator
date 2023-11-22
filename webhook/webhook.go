@@ -151,7 +151,7 @@ func (hook *cmStateCreator) handlePodCreate(req admission.Request, cmState *cach
 		}
 	}
 
-	pod.Annotations["vault.hashicorp.com/agent-configmap"] = cmState.Name
+	pod.Annotations[cmTemplate.Spec.Template.TargetAnnotation] = cmState.Name
 
 	pData, err := json.Marshal(pod)
 	if err != nil {

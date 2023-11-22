@@ -45,9 +45,12 @@ spec:
                     additionalProperties:
                       type: string
                     type: object
+                  targetAnnotation:
+                    type: string
                 required:
                 - annotationreplace
                 - cmtemplate
+                - targetAnnotation
                 type: object
             type: object
           status:
