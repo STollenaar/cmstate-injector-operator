@@ -1,3 +1,7 @@
+[![gh-pages](https://github.com/STollenaar/cmstate-injector-operator/actions/workflows/pages/pages-build-deployment/badge.svg?branch=gh-pages)](https://github.com/STollenaar/cmstate-injector-operator/actions/workflows/pages/pages-build-deployment)
+[![Helm Charts](https://github.com/STollenaar/cmstate-injector-operator/actions/workflows/release.yml/badge.svg)](https://github.com/STollenaar/cmstate-injector-operator/actions/workflows/release.yml)
+[![Docker Builds](https://github.com/STollenaar/cmstate-injector-operator/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/STollenaar/cmstate-injector-operator/actions/workflows/docker-publish.yml)
+
 # cmstate-injector-operator
 
 ## Overview
