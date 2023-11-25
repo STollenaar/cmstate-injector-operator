@@ -1,103 +1,133 @@
-# cm-injector-operator
+# cmstate-injector-operator
 
-A simple ConfigMap injector for tracking various templates
+## Overview
 
-## Description
+`cmstate-injector-operator` is a Kubernetes operator that simplifies the management of ConfigMaps by dynamically creating them based on the specifications defined in Custom Resource Definitions (CRDs). The operator focuses on the interaction between `CMTemplate` and `CMState` CRDs, offering a streamlined approach to ConfigMap management in a Kubernetes cluster.
 
-This Operator will create ConfigMaps of a given template when a pod is created that has certain annotations. This can be used for example with Vault such that the Vault agent injects the right AWS credentials
+## Features
+
+- **CMTemplate CRD:** Define a template for ConfigMaps using the `CMTemplate` CRD. This includes specifying annotations for template replacement values.
+
+- **CMState CRD:** Track the usage of ConfigMaps by Pods through the `CMState` CRD. Maintain an audience list to identify Pods utilizing the created ConfigMap.
+
+- **Reconcile Loop:** The operator performs reconciliation for `CMState` and `CMTemplate` CRDs, ensuring that the ConfigMap state aligns with the desired specifications.
+
+- **Mutating Webhook:** Triggered on Pod creation and deletion, the mutating webhook watches for a specific annotation, `cache.spices.dev/cmtemplate`, targeting a valid and created `CMTemplate`.
 
 ## Getting Started
 
-You’ll need a Kubernetes cluster to run against. You can use [KIND](https://sigs.k8s.io/kind) to get a local cluster for testing, or run against a remote cluster.
-**Note:** Your controller will automatically use the current context in your kubeconfig file (i.e. whatever cluster `kubectl cluster-info` shows).
+### Prerequisites
 
-### Running on the cluster
+- Kubernetes cluster
+- `kubectl` configured to access the cluster
 
-1. Install Instances of Custom Resources:
+Only if modifying this operator by adding more controllers should you need this:
 
-```sh
-kubectl apply -f config/samples/
-```
+- [operator-sdk](https://github.com/operator-framework/operator-sdk) installed
 
-2. Build and push your image to the location specified by `IMG`:
+### Installation
 
-```sh
-make docker-build docker-push IMG=<some-registry>/cm-injector-operator:tag
-```
+#### Operator Deployment
 
-3. Deploy the controller to the cluster with the image specified by `IMG`:
+1. Clone the repository:
 
-```sh
-make deploy IMG=<some-registry>/cm-injector-operator:tag
-```
+   ```bash
+   git clone https://github.com/your-username/cmstate-injector-operator.git
+   cd cmstate-injector-operator
+   ```
 
-### Uninstall CRDs
+2. Build and deploy the operator:
 
-To delete the CRDs from the cluster:
+   ```bash
+   make install
+   make deploy
+   ```
 
-```sh
-make uninstall
-```
+3. Verify the deployment:
 
-### Undeploy controller
+   ```bash
+   kubectl get pods -n <namespace>
+   ```
 
-UnDeploy the controller from the cluster:
+#### Helm Chart Deployment
 
-```sh
-make undeploy
-```
+Alternatively, you can deploy the operator using the Helm chart located in the `charts` directory.
+
+1. Change into the `charts` directory:
+
+   ```bash
+   cd charts
+   ```
+
+2. Install the Helm chart:
+
+   ```bash
+   helm install cmstate-injector-operator .
+   ```
+
+3. Verify the deployment:
+
+   ```bash
+   kubectl get pods -n <namespace>
+   ```
+
+## Usage
+
+1. Define a `CMTemplate` to specify the template for your ConfigMap:
+
+   ```yaml
+    apiVersion: cache.spices.dev/v1alpha1
+    kind: CMTemplate
+    metadata:
+        name: cmtemplate-example
+    spec:
+    template:
+        annotationreplace:
+            example-annotation: '{example-regex}'
+        cmtemplate:
+            config.ini: |
+                name = {example-regex}
+                write_to_example = true
+            targetAnnotation: example-target-annotation
+   ```
+
+2. Create a `CMState` to track ConfigMap usage:
+
+   ```yaml
+    apiVersion: cache.spices.dev/v1alpha1
+    kind: CMState
+    metadata:
+        name: cmstate-example
+        namespace: example
+    spec:
+        audience:
+        - kind: Pod
+            name: example
+        cmtemplate: cmtemplate-example
+        target: cmstate-example-configmap
+   ```
+
+3. Pods that reference the created ConfigMap should include the annotation:
+
+   ```yaml
+   metadata:
+     annotations:
+       cache.spices.dev/cmtemplate: cmtemplate-example
+   ```
 
 ## Contributing
 
-// TODO(user): Add detailed information on how you would like others to contribute to this project
-
-### How it works
-
-This project aims to follow the Kubernetes [Operator pattern](https://kubernetes.io/docs/concepts/extend-kubernetes/operator/).
-
-It uses [Controllers](https://kubernetes.io/docs/concepts/architecture/controller/),
-which provide a reconcile function responsible for synchronizing resources until the desired state is reached on the cluster.
-
-### Test It Out
-
-1. Install the CRDs into the cluster:
-
-```sh
-make install
-```
-
-2. Run your controller (this will run in the foreground, so switch to a new terminal if you want to leave it running):
-
-```sh
-make run
-```
-
-**NOTE:** You can also run this in one step by running: `make install run`
-
-### Modifying the API definitions
-
-If you are editing the API definitions, generate the manifests such as CRs or CRDs using:
-
-```sh
-make manifests
-```
-
-**NOTE:** Run `make --help` for more information on all potential `make` targets
-
-More information can be found via the [Kubebuilder Documentation](https://book.kubebuilder.io/introduction.html)
+Contributions are welcome! Please check out our [contribution guidelines](CONTRIBUTING.md) for more details.
 
 ## License
 
-Copyright 2023.
+This project is licensed under the [MIT License](LICENSE). See the LICENSE file for details.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+## Acknowledgments
 
-    http://www.apache.org/licenses/LICENSE-2.0
+- [operator-sdk](https://github.com/operator-framework/operator-sdk)
+- Kubernetes community
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+## Contact
+
+For any questions or feedback, please reach out to [stephen@tollenaar.com](mailto:stephen@tollenaar.com).
