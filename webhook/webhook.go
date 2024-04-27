@@ -12,6 +12,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 
 	v1admission "k8s.io/api/admission/v1"
+	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -21,7 +22,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 )
 
-// +kubebuilder:webhook:path=/mutate-v1-pod,mutating=true,failurePolicy=ignore,sideEffects=None,groups="",resources=pods,verbs=create;delete,versions=v1,name=cmstate-operator-webhook.spices.dev,admissionReviewVersions=v1
+// +kubebuilder:webhook:path=/mutate-v1-pod,mutating=true,failurePolicy=ignore,sideEffects=None,groups="",resources=pods,verbs=create;delete,versions=v1,name=cmstate-operator-webhook.spicedelver.me,admissionReviewVersions=v1
 
 type PatchOperation struct {
 	Op    string      `json:"op"`
@@ -69,9 +70,9 @@ func (hook *cmStateCreator) handleInner(ctx context.Context, req admission.Reque
 
 	cmState := &cachev1alpha1.CMState{}
 	cmTemplate := &cachev1alpha1.CMTemplate{}
-	if pod.Annotations["cache.spices.dev/cmtemplate"] != "" {
+	if pod.Annotations["cache.spicedelver.me/cmtemplate"] != "" {
 
-		crdName := generateName(pod.Annotations["cache.spices.dev/cmtemplate"])
+		crdName := generateName(pod.Annotations["cache.spicedelver.me/cmtemplate"])
 		err = hook.Client.Get(
 			ctx,
 			types.NamespacedName{
@@ -88,7 +89,7 @@ func (hook *cmStateCreator) handleInner(ctx context.Context, req admission.Reque
 		err = hook.Client.Get(
 			ctx,
 			types.NamespacedName{
-				Name: pod.Annotations["cache.spices.dev/cmtemplate"],
+				Name: pod.Annotations["cache.spicedelver.me/cmtemplate"],
 			},
 			cmTemplate,
 		)
@@ -119,6 +120,11 @@ func (hook *cmStateCreator) handlePodDelete(cmState *cachev1alpha1.CMState, pod 
 	podName := pod.GetName()
 	if pod.GetGenerateName() != "" {
 		podName = pod.GetGenerateName()
+	}
+
+	if len(pod.OwnerReferences) > 0 && hook.checkOwners(pod, ctx) {
+		resp := admission.Allowed("skipping cmstate patch due to pod being kept around")
+		return &resp, nil
 	}
 
 	index := findIndex(cmState.Spec.Audience, podName)
@@ -177,7 +183,7 @@ func generateCMState(cmTemplate *cachev1alpha1.CMTemplate, pod *corev1.Pod) *cac
 	}
 	return &cachev1alpha1.CMState{
 		TypeMeta: metav1.TypeMeta{
-			APIVersion: "cache.spices.dev/v1alpha1",
+			APIVersion: "cache.spicedelver.me/v1alpha1",
 			Kind:       "CMState",
 		},
 		ObjectMeta: metav1.ObjectMeta{
@@ -218,3 +224,86 @@ func (hook *cmStateCreator) InjectDecoder(d *admission.Decoder) error {
 	hook.decoder = d
 	return nil
 }
+
+func (hook *cmStateCreator) checkOwners(pod *corev1.Pod, ctx context.Context) bool {
+	for _, owner := range pod.OwnerReferences {
+		if !hook.checkOwner(owner, pod, ctx) {
+			return false
+		}
+	}
+	return true
+}
+
+func (hook *cmStateCreator) checkOwner(owner metav1.OwnerReference, pod *corev1.Pod, ctx context.Context) bool {
+	switch owner.Kind {
+	case "Deployment":
+		ownerObject := &appsv1.Deployment{}
+		err := hook.Client.Get(
+			ctx,
+			types.NamespacedName{
+				Namespace: pod.Namespace,
+				Name:      owner.Name,
+			},
+			ownerObject,
+		)
+		if err != nil {
+			fmt.Println(err)
+			return false
+		}
+		return *ownerObject.Spec.Replicas != 0
+	case "DaemonSet":
+		ownerObject := &appsv1.Deployment{}
+		err := hook.Client.Get(
+			ctx,
+			types.NamespacedName{
+				Namespace: pod.Namespace,
+				Name:      owner.Name,
+			},
+			ownerObject,
+		)
+		if err != nil {
+			fmt.Println(err)
+			return false
+		}
+		return *ownerObject.Spec.Replicas != 0
+	case "StatefulSet":
+		ownerObject := &appsv1.Deployment{}
+		err := hook.Client.Get(
+			ctx,
+			types.NamespacedName{
+				Namespace: pod.Namespace,
+				Name:      owner.Name,
+			},
+			ownerObject,
+		)
+		if err != nil {
+			fmt.Println(err)
+			return false
+		}
+		return *ownerObject.Spec.Replicas != 0
+	case "ReplicaSet":
+		ownerObject := &appsv1.Deployment{}
+		err := hook.Client.Get(
+			ctx,
+			types.NamespacedName{
+				Namespace: pod.Namespace,
+				Name:      owner.Name,
+			},
+			ownerObject,
+		)
+		if err != nil {
+			fmt.Println(err)
+			return false
+		}
+		return *ownerObject.Spec.Replicas != 0
+	}
+	return false
+}
+
+// err = hook.Client.Get(
+// 	ctx,
+// 	types.NamespacedName{
+// 		Name: pod.Annotations["cache.spicedelver.me/cmtemplate"],
+// 	},
+// 	cmTemplate,
+// )

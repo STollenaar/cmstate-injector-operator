@@ -17,12 +17,12 @@ metadata:
     {{ toYaml .Values.webhook.annotations | nindent 4 }}
     {{- end }}
 webhooks:
-  - name: cmstate-operator.spices.dev
+  - name: cmstate-operator.spicedelver.me
     admissionReviewVersions: ["v1"]
     sideEffects: None
     namespaceSelector:
         matchExpressions:
-            - key: 'cmstate.spices.dev'
+            - key: 'cmstate.spicedelver.me'
               operator: 'NotIn'
               values:
               - 'opt-out'

@@ -12,7 +12,7 @@ metadata:
   name: cmstate-editor-role
 rules:
 - apiGroups:
-  - cache.spices.dev
+  - cache.spicedelver.me
   resources:
   - cmstates
   verbs:
@@ -24,7 +24,7 @@ rules:
   - update
   - watch
 - apiGroups:
-  - cache.spices.dev
+  - cache.spicedelver.me
   resources:
   - cmstates/status
   verbs:

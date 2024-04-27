@@ -13,7 +13,7 @@ webhooks:
       namespace: system
       path: /mutate-v1-pod
   failurePolicy: Ignore
-  name: cmstate-operator-webhook.spices.dev
+  name: cmstate-operator-webhook.spicedelver.me
   rules:
   - apiGroups:
     - ""

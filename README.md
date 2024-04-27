@@ -16,7 +16,7 @@
 
 - **Reconcile Loop:** The operator performs reconciliation for `CMState` and `CMTemplate` CRDs, ensuring that the ConfigMap state aligns with the desired specifications.
 
-- **Mutating Webhook:** Triggered on Pod creation and deletion, the mutating webhook watches for a specific annotation, `cache.spices.dev/cmtemplate`, targeting a valid and created `CMTemplate`.
+- **Mutating Webhook:** Triggered on Pod creation and deletion, the mutating webhook watches for a specific annotation, `cache.spicedelver.me/cmtemplate`, targeting a valid and created `CMTemplate`.
 
 ## Getting Started
 
@@ -80,7 +80,7 @@ Alternatively, you can deploy the operator using the Helm chart located in the `
 1. Define a `CMTemplate` to specify the template for your ConfigMap:
 
    ```yaml
-    apiVersion: cache.spices.dev/v1alpha1
+    apiVersion: cache.spicedelver.me/v1alpha1
     kind: CMTemplate
     metadata:
         name: cmtemplate-example
@@ -98,7 +98,7 @@ Alternatively, you can deploy the operator using the Helm chart located in the `
 2. Create a `CMState` to track ConfigMap usage:
 
    ```yaml
-    apiVersion: cache.spices.dev/v1alpha1
+    apiVersion: cache.spicedelver.me/v1alpha1
     kind: CMState
     metadata:
         name: cmstate-example
@@ -116,7 +116,7 @@ Alternatively, you can deploy the operator using the Helm chart located in the `
    ```yaml
    metadata:
      annotations:
-       cache.spices.dev/cmtemplate: cmtemplate-example
+       cache.spicedelver.me/cmtemplate: cmtemplate-example
    ```
 
 ## Contributing

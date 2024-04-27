@@ -52,9 +52,9 @@ type CMStateReconciler struct {
 	Recorder record.EventRecorder
 }
 
-//+kubebuilder:rbac:groups=cache.spices.dev,resources=cmstates,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=cache.spices.dev,resources=cmstates/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=cache.spices.dev,resources=cmstates/finalizers,verbs=update
+//+kubebuilder:rbac:groups=cache.spicedelver.me,resources=cmstates,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=cache.spicedelver.me,resources=cmstates/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=cache.spicedelver.me,resources=cmstates/finalizers,verbs=update
 //+kubebuilder:rbac:groups="",resources=configmaps,verbs=get;list;watch;create;update;patch;delete
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to

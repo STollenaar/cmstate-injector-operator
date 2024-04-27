@@ -5,9 +5,9 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.11.1
   creationTimestamp: null
-  name: cmstates.cache.spices.dev
+  name: cmstates.cache.spicedelver.me
 spec:
-  group: cache.spices.dev
+  group: cache.spicedelver.me
   names:
     kind: CMState
     listKind: CMStateList

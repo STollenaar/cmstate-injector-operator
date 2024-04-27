@@ -12,7 +12,7 @@ metadata:
   name: pod-editor-role
 rules:
 - apiGroups:
-  - core.spices.dev
+  - core.spicedelver.me
   resources:
   - pods
   verbs:
@@ -24,7 +24,7 @@ rules:
   - update
   - watch
 - apiGroups:
-  - core.spices.dev
+  - core.spicedelver.me
   resources:
   - pods/status
   verbs:

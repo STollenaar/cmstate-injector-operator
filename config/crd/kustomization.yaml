@@ -2,9 +2,9 @@
 # since it depends on service name and namespace that are out of this kustomize package.
 # It should be run by config/default
 resources:
-- bases/cache.spices.dev_cmstates.yaml
-# - bases/core.spices.dev_pods.yaml
-- bases/cache.spices.dev_cmtemplates.yaml
+- bases/cache.spicedelver.me_cmstates.yaml
+# - bases/core.spicedelver.me_pods.yaml
+- bases/cache.spicedelver.me_cmtemplates.yaml
 #+kubebuilder:scaffold:crdkustomizeresource
 
 patchesStrategicMerge: []

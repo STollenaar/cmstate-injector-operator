@@ -28,7 +28,7 @@ BUNDLE_METADATA_OPTS ?= $(BUNDLE_CHANNELS) $(BUNDLE_DEFAULT_CHANNEL)
 # This variable is used to construct full image tags for bundle and catalog images.
 #
 # For example, running 'make bundle-build bundle-push catalog-build catalog-push' will build and push both
-# spices.dev/cm-injector-operator-bundle:$VERSION and spices.dev/cm-injector-operator-catalog:$VERSION.
+# spicedelver.me/cm-injector-operator-bundle:$VERSION and spicedelver.me/cm-injector-operator-catalog:$VERSION.
 IMAGE_TAG_BASE ?= public.ecr.aws/x4a1o1q2/cmstate-operator
 
 # BUNDLE_IMG defines the image:tag used for the bundle.

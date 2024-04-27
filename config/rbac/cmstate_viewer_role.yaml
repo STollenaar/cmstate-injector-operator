@@ -12,7 +12,7 @@ metadata:
   name: cmstate-viewer-role
 rules:
 - apiGroups:
-  - cache.spices.dev
+  - cache.spicedelver.me
   resources:
   - cmstates
   verbs:
@@ -20,7 +20,7 @@ rules:
   - list
   - watch
 - apiGroups:
-  - cache.spices.dev
+  - cache.spicedelver.me
   resources:
   - cmstates/status
   verbs:

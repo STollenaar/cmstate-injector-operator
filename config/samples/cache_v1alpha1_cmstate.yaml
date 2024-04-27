@@ -1,4 +1,4 @@
-apiVersion: cache.spices.dev/v1alpha1
+apiVersion: cache.spicedelver.me/v1alpha1
 kind: CMState
 metadata:
   labels:
