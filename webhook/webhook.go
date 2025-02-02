@@ -252,7 +252,7 @@ func (hook *cmStateCreator) checkOwner(owner metav1.OwnerReference, pod *corev1.
 		}
 		return *ownerObject.Spec.Replicas != 0
 	case "DaemonSet":
-		ownerObject := &appsv1.Deployment{}
+		ownerObject := &appsv1.DaemonSet{}
 		err := hook.Client.Get(
 			ctx,
 			types.NamespacedName{
@@ -265,9 +265,9 @@ func (hook *cmStateCreator) checkOwner(owner metav1.OwnerReference, pod *corev1.
 			fmt.Println(err)
 			return false
 		}
-		return *ownerObject.Spec.Replicas != 0
+		return true
 	case "StatefulSet":
-		ownerObject := &appsv1.Deployment{}
+		ownerObject := &appsv1.StatefulSet{}
 		err := hook.Client.Get(
 			ctx,
 			types.NamespacedName{
@@ -282,7 +282,7 @@ func (hook *cmStateCreator) checkOwner(owner metav1.OwnerReference, pod *corev1.
 		}
 		return *ownerObject.Spec.Replicas != 0
 	case "ReplicaSet":
-		ownerObject := &appsv1.Deployment{}
+		ownerObject := &appsv1.ReplicaSet{}
 		err := hook.Client.Get(
 			ctx,
 			types.NamespacedName{
