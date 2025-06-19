@@ -55,11 +55,12 @@ func (hook *cmStateCreator) handleInner(ctx context.Context, req admission.Reque
 
 	var err error
 	pod := &corev1.Pod{}
-	if req.Operation == v1admission.Create {
-		err = hook.decoder.Decode(req, pod)
-	} else if req.Operation == v1admission.Delete {
-		err = hook.decoder.DecodeRaw(req.OldObject, pod)
-	} else {
+	switch req.Operation {
+	case v1admission.Create:
+		err = (*hook.decoder).Decode(req, pod)
+	case v1admission.Delete:
+		err = (*hook.decoder).DecodeRaw(req.OldObject, pod)
+	default:
 		resp := admission.Allowed("skipping cmstate check due to bad operation")
 		return &resp, nil
 	}
@@ -102,9 +103,10 @@ func (hook *cmStateCreator) handleInner(ctx context.Context, req admission.Reque
 			return nil, errors.Wrap(err, "fetching cmtemplate has resulted in an error")
 		}
 
-		if req.Operation == v1admission.Create {
+		switch req.Operation {
+		case v1admission.Create:
 			return hook.handlePodCreate(req, cmState, cmTemplate, pod, ctx)
-		} else if req.Operation == v1admission.Delete {
+		case v1admission.Delete:
 			return hook.handlePodDelete(cmState, pod, ctx)
 		}
 	}
@@ -122,7 +124,7 @@ func (hook *cmStateCreator) handlePodDelete(cmState *cachev1alpha1.CMState, pod 
 		podName = pod.GetGenerateName()
 	}
 
-	if len(pod.OwnerReferences) > 0 && hook.checkOwners(pod, ctx) {
+	if len(pod.GetOwnerReferences()) > 0 && hook.checkOwners(pod, ctx) {
 		resp := admission.Allowed("skipping cmstate patch due to pod being kept around")
 		return &resp, nil
 	}
@@ -226,7 +228,7 @@ func (hook *cmStateCreator) InjectDecoder(d *admission.Decoder) error {
 }
 
 func (hook *cmStateCreator) checkOwners(pod *corev1.Pod, ctx context.Context) bool {
-	for _, owner := range pod.OwnerReferences {
+	for _, owner := range pod.GetOwnerReferences() {
 		if !hook.checkOwner(owner, pod, ctx) {
 			return false
 		}

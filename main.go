@@ -30,6 +30,8 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
+	"sigs.k8s.io/controller-runtime/pkg/metrics/server"
+	k8swebhook "sigs.k8s.io/controller-runtime/pkg/webhook"
 
 	cachev1alpha1 "github.com/stollenaar/cmstate-injector-operator/api/v1alpha1"
 	"github.com/stollenaar/cmstate-injector-operator/controllers"
@@ -67,9 +69,15 @@ func main() {
 	ctrl.SetLogger(zap.New(zap.UseFlagOptions(&opts)))
 
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
-		Scheme:                 scheme,
-		MetricsBindAddress:     metricsAddr,
-		Port:                   9443,
+		Scheme: scheme,
+		Metrics: server.Options{
+			BindAddress: metricsAddr,
+		},
+		WebhookServer: &k8swebhook.DefaultServer{
+			Options: k8swebhook.Options{
+				Port: 9443,
+			},
+		},
 		HealthProbeBindAddress: probeAddr,
 		LeaderElection:         enableLeaderElection,
 		LeaderElectionID:       "c377543a.spicedelver.me",
