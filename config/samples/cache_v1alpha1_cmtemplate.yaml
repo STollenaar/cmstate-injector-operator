@@ -2,11 +2,8 @@ apiVersion: cache.spicedelver.me/v1alpha1
 kind: CMTemplate
 metadata:
   labels:
-    app.kubernetes.io/name: cmtemplate
-    app.kubernetes.io/instance: cmtemplate-sample
-    app.kubernetes.io/part-of: cm-injector-operator
+    app.kubernetes.io/name: cmstate-injector-operator
     app.kubernetes.io/managed-by: kustomize
-    app.kubernetes.io/created-by: cm-injector-operator
   name: cmtemplate-sample
 spec:
   # TODO(user): Add fields here

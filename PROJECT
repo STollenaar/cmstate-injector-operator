@@ -2,15 +2,23 @@
 # This file is used to track the info used to scaffold your project
 # and allow the plugins properly work.
 # More info: https://book.kubebuilder.io/reference/project-config.html
+cliVersion: 4.6.0
 domain: spicedelver.me
 layout:
-- go.kubebuilder.io/v3
-plugins:
-  manifests.sdk.operatorframework.io/v2: {}
-  scorecard.sdk.operatorframework.io/v2: {}
-projectName: cm-injector-operator
+- go.kubebuilder.io/v4
+multigroup: true
+projectName: cmstate-injector-operator
 repo: github.com/stollenaar/cmstate-injector-operator
 resources:
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: spicedelver.me
+  group: cache
+  kind: CMTemplate
+  path: github.com/stollenaar/cmstate-injector-operator/api/v1alpha1
+  version: v1alpha1
 - api:
     crdVersion: v1
     namespaced: true
@@ -23,31 +31,4 @@ resources:
   webhooks:
     defaulting: true
     webhookVersion: v1
-- group: core
-  kind: Pod
-  path: k8s.io/api/core/v1
-  version: v1
-  webhooks:
-    defaulting: true
-    webhookVersion: v1
-- api:
-    crdVersion: v1
-    namespaced: true
-  domain: spicedelver.me
-  group: core
-  kind: Pod
-  path: github.com/stollenaar/cmstate-injector-operator/api/v1
-  version: v1
-  webhooks:
-    defaulting: true
-    webhookVersion: v1
-- api:
-    crdVersion: v1
-    namespaced: true
-  controller: true
-  domain: spicedelver.me
-  group: cache
-  kind: CMTemplate
-  path: github.com/stollenaar/cmstate-injector-operator/api/v1alpha1
-  version: v1alpha1
 version: "3"

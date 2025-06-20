@@ -2,7 +2,6 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  creationTimestamp: null
   name: manager-role
 rules:
 - apiGroups:
@@ -21,31 +20,6 @@ rules:
   - cache.spicedelver.me
   resources:
   - cmstates
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - cache.spicedelver.me
-  resources:
-  - cmstates/finalizers
-  verbs:
-  - update
-- apiGroups:
-  - cache.spicedelver.me
-  resources:
-  - cmstates/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - cache.spicedelver.me
-  resources:
   - cmtemplates
   verbs:
   - create
@@ -58,12 +32,14 @@ rules:
 - apiGroups:
   - cache.spicedelver.me
   resources:
+  - cmstates/finalizers
   - cmtemplates/finalizers
   verbs:
   - update
 - apiGroups:
   - cache.spicedelver.me
   resources:
+  - cmstates/status
   - cmtemplates/status
   verbs:
   - get

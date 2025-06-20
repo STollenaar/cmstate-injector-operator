@@ -1,0 +1,9 @@
+{
+    "feature": {
+        "network": {
+            "incoming": "steal"
+        },
+        "fs": "read",
+        "env": true
+    }
+}
