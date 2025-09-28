@@ -44,6 +44,10 @@ spec:
                 - ALL
             readOnlyRootFilesystem: true
             runAsNonRoot: true
+          {{- if .Values.resources }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          {{- end }}
           volumeMounts:
           {{- range $v := .Values.deployment.pod.volumes }}
           - name: {{ $v.name }}
